@@ -1,0 +1,16 @@
+.graph_section{
+    border: 4px solid;
+    border-color: #999999;
+    margin: 0em;
+    margin-left: 2em;
+    background-color: #fff;
+    position: relative;
+}
+
+.wound_img image{
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-position: center;
+}

@@ -1,0 +1,126 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  display: table-cell;
+  vertical-align: middle;
+  height: 5vmin;
+  padding-right: 5px;
+  pointer-events: none;
+}
+
+.App-title {
+  display: table-cell;
+  vertical-align: center;
+  text-align: left;
+  padding-left: 1em;
+  height: 20px;
+  font-size: 30px;
+  font-style: normal;
+  pointer-events: none;
+  border-bottom: #a22041;
+}
+
+.App-title p{
+  font-size: 12px;
+  padding-left: 0.3em;
+  margin-top: -5px;
+  margin-bottom: -2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  width:100%;
+  display: table;
+  table-layout: fixed;
+  background-color: ##fff;
+  height: 40px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: ##fff;
+  padding: 10px;
+  color: black;
+  border-top: solid #a22041;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.App-body{
+  background-color: #eeeeee;
+  padding:10px;
+  color: black;
+  overflow: hidden;
+}
+
+.LeftMenu{
+  float: left;
+  align:left;
+  border: 1px solid #eeeeee;
+  background-color: #333333;
+  width: 300px;
+
+}
+
+.Correlationgraph{
+  float: left;
+}
+
+
+.upgrade-button{
+  display: table-cell;
+  vertical-align: middle;
+  padding: 5px 20px;
+  border-radius: 5px;
+  display: inline-block;
+  border: 1px solid #000;
+  cursor: pointer;
+}
+
+.upgrade-button:hover{
+  opacity: .8;
+}
+
+.upgraded-button{
+  float: left;
+  padding: 5px 20px;
+  border-radius: 5px;
+  display: inline-block;
+  border: 1px solid #aaa;
+  color: #aaa;
+  pointer-events: none;
+}
+
+.tab_wrap{float: left; width:800px; margin:1px auto;}
+input[type="radio"]{display:none;}
+.tab_area{font-size:0; margin:0 10px;}
+.tab_area label{width:150px; margin:0 5px; display:inline-block; padding:12px 0; color:#999; background:#ddd; text-align:center; font-size:13px; cursor:pointer; transition:ease 0.2s opacity;}
+.tab_area label:hover{opacity:0.5;}
+.panel_area{background:#eeeeee; width:700px;}
+.tab_panel{width:auto; display:none; align: center;}
+
+#tab1:checked ~ .tab_area .tab1_label{background:#fff; color:#000;}
+#tab1:checked ~ .panel_area #panel1{display:block;}
+#tab2:checked ~ .tab_area .tab2_label{background:#fff; color:#000;}
+#tab2:checked ~ .panel_area #panel2{display:block;}
+#tab3:checked ~ .tab_area .tab3_label{background:#fff; color:#000;}
+#tab3:checked ~ .panel_area #panel3{display:block;}
+#tab4:checked ~ .tab_area .tab4_label{background:#fff; color:#000;}
+#tab4:checked ~ .panel_area #panel4{display:block;}

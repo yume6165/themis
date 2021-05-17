@@ -1,0 +1,90 @@
+.menu_box{
+
+}
+
+.subtitle{
+  text-align: left;
+}
+
+.main_title{
+  text-align: left;
+  font-size: 1.2em;
+  width:auto;
+  color: white;
+  padding-top: 10px;
+  height: 20px;
+  text-align: left;
+  padding-left: 0.5em;
+  background-color: #333333;
+}
+
+
+.acd-check{
+    display: none;
+}
+
+.acd-label{
+    background-color: #555555;
+    cursor: pointer;
+    width:auto;
+    height: 30px;
+    color: white;
+    text-align: left;
+    align:left;
+    display: block;
+    margin-bottom: 0;
+    padding: 10px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    position: relative;
+}
+
+.acd-label:after{
+    background:#454545;
+    box-sizing: border-box;
+    content: '+';
+    display: block;
+    font-family: "Font Awesome 5 Free";
+    height: 50px;
+    width: 50px;
+    padding: 10px 20px;
+    position: absolute;
+    right: 0;
+    top: 0px;
+}
+
+
+.acd-content{
+    height: 0;
+    opacity: 0;
+    padding: 0 10px 0 ;
+    transition: .5s;
+    visibility: collapse;
+    background-color: #777777;
+    color: white;
+}
+.acd-check:checked + .acd-label + .acd-content{
+    height: auto;
+    opacity: 1;
+    padding: 10px;
+    visibility: visible;
+}
+
+.acd-check:checked + .acd-label{
+    background-color: #a22041;
+    cursor: pointer;
+    width:auto;
+    color: white;
+    text-align: left;
+    align:left;
+    display: block;
+    margin-bottom: 0;
+    padding: 10px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+.acd-check:checked + .acd-label:after{
+    background-color: #911030;
+    content: '-';
+}
