@@ -24,7 +24,7 @@ def mmm_operation(path, anken_path):
 	#案件のデータを処理
 	input_vec = np.array(anken_read_img(anken_path)).flatten()
 
-	with open('D:\\Sotsuken\\webapp\\public\\result\\output_file\\sem_mat.csv', 'w') as f:
+	with open('/Users/asayamayume/Desktop/themis/public/result/output_file/sem_mat.csv', 'w') as f:
 		writer = csv.writer(f)
 		#writer.writerow(word_list)
 		for row in sem_mat:
@@ -72,19 +72,19 @@ def mmm_operation(path, anken_path):
 
 		#print(distances)
 
-		with open('D:\\Sotsuken\\webapp\\public\\result\\output_file\\anken_dist\\'+str(count + 1)+'_'+c_list[count]+'_context.csv', 'w') as f:
+		with open('/Users/asayamayume/Desktop/themis/public/result/output_file/anken_dist/'+str(count + 1)+'_'+c_list[count]+'_context.csv', 'w') as f:
 			writer = csv.writer(f)
 			for d in distances:
 				writer.writerow(d)
 		count += 1
 
-	with open('D:\\Sotsuken\\webapp\\public\\result\\output_file\\img_vec.csv', 'w') as f:
+	with open('/Users/asayamayume/Desktop/themis/public/result/output_file/img_vec.csv', 'w') as f:
 		writer2 = csv.writer(f)
 		for row in results_anken:
 			writer2.writerow(row)
 
 
-	with open('D:\\Sotsuken\\webapp\\public\\result\\output_file\\anken_dist\\0_no_context.csv', 'w') as f:
+	with open('/Users/asayamayume/Desktop/themis/public/result/output_file/anken_dist/0_no_context.csv', 'w') as f:
 		writer = csv.writer(f)
 		#writer.writerow(no_context_dist(results))
 		for d in no_context_dist(results_anken):
@@ -140,7 +140,7 @@ def align_wounds(path):
         pos = mds.fit_transform(datum)
         #print(pos)
 
-        with open('C:\\users\\pinkd\\themis\\public\\results\\output_file\\anken_mds\\'+str(count)+'_'+c_list[count]+'_context.csv', 'w') as f:
+        with open('/Users/asayamayume/Desktop/themis/public/results/output_file/anken_mds/'+str(count)+'_'+c_list[count]+'_context.csv', 'w') as f:
             writer = csv.writer(f)
             for d in pos:
                 writer.writerow(d)
@@ -152,20 +152,20 @@ def align_wounds(path):
     #(0,0)空の角度を計算して角度0から順番に並べていく
 
     #プロットするところ
-    #plt.scatter(pos[:, 0], pos[:, 1], marker = 'o')
-    #for x, y, n in zip(pos[:, 0], pos[:, 1], data_name):
-    #    plt.scatter(x ,y, s=100)
-    #    plt.annotate(n, xy=(x, y))
-    #plt.show()
+    plt.scatter(pos[:, 0], pos[:, 1], marker = 'o')
+    for x, y, n in zip(pos[:, 0], pos[:, 1], data_name):
+        plt.scatter(x ,y, s=100)
+        plt.annotate(n, xy=(x, y))
+    plt.show()
 
 
 
 if __name__ == '__main__':
     #絶対パスじゃないといけないのがよくわからない
-    path =['C:\\users\\pinkd\\themis\\public\\results\\\output_file\\anken_dist\\0_no_context.csv',
-            'C:\\users\\pinkd\\themis\\public\\results\\\output_file\\anken_dist\\1_incision_context.csv',
-            'C:\\users\\pinkd\\themis\\public\\results\\\output_file\\anken_dist\\2_contusion_context.csv',
-            'C:\\users\\pinkd\\themis\\public\\results\\\output_file\\anken_dist\\3_stab_context.csv']
+    path =['/Users/asayamayume/Desktop/themis/public/results/output_file/anken_dist/0_no_context.csv',
+            '/Users/asayamayume/Desktop/themis/public/results/output_file/anken_dist/1_incision_context.csv',
+            '/Users/asayamayume/Desktop/themis/public/results/output_file/anken_dist/2_contusion_context.csv',
+            '/Users/asayamayume/Desktop/themis/public/results/output_file/anken_dist/3_stab_context.csv']
 
     align_wounds(path)
 
