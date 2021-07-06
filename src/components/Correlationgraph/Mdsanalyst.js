@@ -47,10 +47,10 @@ createLineChart(state) {
       height = 800,
       margin = 50,
       x = d3.scaleLinear()
-          .domain([0, 10])
+          .domain([-30, 30])
           .range([margin, width - margin]),
       y = d3.scaleLinear()
-          .domain([0, 10])
+          .domain([-30, 30])
           .range([height - margin, margin]);
 
       d3.range(10).map(function(i){
@@ -159,11 +159,11 @@ createLineChart(state) {
 
         // 3. 軸スケールの設定
         var xScale = d3.scaleLinear()
-          .domain([-10.0, 10.0])
+          .domain([-30.0, 30.0])
           .range([margin.left, width - margin.right]);
 
         var yScale = d3.scaleLinear()
-            .domain([-10.0, 10.0])
+            .domain([-30.0, 30.0])
             .range([height - margin.bottom, margin.top]);
 
         var grid_x_size = 20;

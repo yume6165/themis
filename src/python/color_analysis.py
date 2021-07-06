@@ -100,10 +100,11 @@ def Lambert(img_path):
 def Kmeans(img):
     x = img.shape[0]
     y = img.shape[1]
-    #print(img.shape)
+
 
     img = cv.cvtColor(img, cv.COLOR_BGR2HSV)
     area = x * y
+
 
     sorted_img = []
     count_x = 0
@@ -147,6 +148,10 @@ def Kmeans(img):
     sorted_img.append(r_array)
     sorted_img.append(g_array)
     sorted_img.append(b_array)
+
+    #print(len(r_array))
+    #print(len(g_array))
+    #print(len(b_array))
 
     #真っ白な画像を作る
     white_img = np.ones((300, 600, 3), np.uint8)
@@ -305,5 +310,5 @@ def hsv2lab(color):
 if __name__ == '__main__':
     path = "/Users/asayamayume/Desktop/themis/public/results/original_img/ori_img_0.jpg"
     #Lambert(path)
-    img = np.array(Image.open(img_path))
+    img = np.array(Image.open(path))
     print(Kmeans(img))

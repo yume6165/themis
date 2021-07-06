@@ -24,7 +24,7 @@ def mmm_operation(path, anken_path):
 	#案件のデータを処理
 	input_vec = np.array(anken_read_img(anken_path)).flatten()
 
-	with open('/Users/asayamayume/Desktop/themis/public/result/output_file/sem_mat.csv', 'w') as f:
+	with open('/Users/asayamayume/Desktop/themis/public/results/output_file/sem_mat.csv', 'w') as f:
 		writer = csv.writer(f)
 		#writer.writerow(word_list)
 		for row in sem_mat:
@@ -32,14 +32,14 @@ def mmm_operation(path, anken_path):
 
 	#まずすべての文脈において距離計算
 	#word_list = ["end_sharp","end_thick","edge_irregular","edge_straight","oval","openness","non_openness"]
-	contex_word = [["end_sharp","end_thick","edge_irregular","edge_straight","oval","openness","non_openness","L","a","b"]]
+	contex_word = [["end_sharp","end_thick","edge_irregular","edge_straight","oval","openness","non_openness","l","a","b","x","y","z","d"]]
 
 	#文脈の種類を作成
 	contex_list = []
 	c_list = ["stab","incision", "contusion", "all"]#文脈の順番を格納
 	stab_contex = [["end_sharp", "edge_straight","oval", "openness"]]
 	incision_contex = [["end_sharp", "edge_straight", "openness"]]
-	contusion_contex = [["end_thick","edge_irregular","oval","non_openness","L","a","b"]]
+	contusion_contex = [["end_thick","edge_irregular","oval","non_openness","l","a","b","x","y","z","d"]]
 	all_contex = contex_word
 
 	contex_list.append(incision_contex)
@@ -72,19 +72,19 @@ def mmm_operation(path, anken_path):
 
 		#print(distances)
 
-		with open('/Users/asayamayume/Desktop/themis/public/result/output_file/anken_dist/'+str(count + 1)+'_'+c_list[count]+'_context.csv', 'w') as f:
+		with open('/Users/asayamayume/Desktop/themis/public/results/output_file/context_dist/anken_dist/'+str(count + 1)+'_'+c_list[count]+'_context.csv', 'w') as f:
 			writer = csv.writer(f)
 			for d in distances:
 				writer.writerow(d)
 		count += 1
 
-	with open('/Users/asayamayume/Desktop/themis/public/result/output_file/img_vec.csv', 'w') as f:
+	with open('/Users/asayamayume/Desktop/themis/public/results/output_file/context_dist/img_vec.csv', 'w') as f:
 		writer2 = csv.writer(f)
 		for row in results_anken:
 			writer2.writerow(row)
 
 
-	with open('/Users/asayamayume/Desktop/themis/public/result/output_file/anken_dist/0_no_context.csv', 'w') as f:
+	with open('/Users/asayamayume/Desktop/themis/public/results/output_file/context_dist/anken_dist/0_no_context.csv', 'w') as f:
 		writer = csv.writer(f)
 		#writer.writerow(no_context_dist(results))
 		for d in no_context_dist(results_anken):
@@ -105,7 +105,7 @@ def align_wounds(path):
 
     for count in range(4):
         if count == 0:
-            div = 3
+            div = 1
         #elif count == 1:
         #    div = math.sqrt(3)
         #elif count == 2:
@@ -113,7 +113,7 @@ def align_wounds(path):
         #elif count == 3:
         #    div = math.sqrt(4)
         else:
-            div = 1
+            div = 5
 
         with open(path[count]) as f:
             reader = csv.reader(f)
@@ -129,7 +129,7 @@ def align_wounds(path):
         #ごり押しでdatnumを広げる
         for i in range(len(datum)):
             for j in range(len(datum[i])):
-                datum[i][j] = round(datum[i][j] * 20 / div,3)
+                datum[i][j] = round(datum[i][j],3)
 #######################################################################
 
         with open(path[count]) as f:
@@ -143,6 +143,7 @@ def align_wounds(path):
         with open('/Users/asayamayume/Desktop/themis/public/results/output_file/anken_mds/'+str(count)+'_'+c_list[count]+'_context.csv', 'w') as f:
             writer = csv.writer(f)
             for d in pos:
+                d /= div
                 writer.writerow(d)
         count += 1
 
@@ -162,10 +163,10 @@ def align_wounds(path):
 
 if __name__ == '__main__':
     #絶対パスじゃないといけないのがよくわからない
-    path =['/Users/asayamayume/Desktop/themis/public/results/output_file/anken_dist/0_no_context.csv',
-            '/Users/asayamayume/Desktop/themis/public/results/output_file/anken_dist/1_incision_context.csv',
-            '/Users/asayamayume/Desktop/themis/public/results/output_file/anken_dist/2_contusion_context.csv',
-            '/Users/asayamayume/Desktop/themis/public/results/output_file/anken_dist/3_stab_context.csv']
+    path =['/Users/asayamayume/Desktop/themis/public/results/output_file/context_dist/anken_dist/0_no_context.csv',
+            '/Users/asayamayume/Desktop/themis/public/results/output_file/context_dist/anken_dist/1_incision_context.csv',
+            '/Users/asayamayume/Desktop/themis/public/results/output_file/context_dist/anken_dist/2_contusion_context.csv',
+            '/Users/asayamayume/Desktop/themis/public/results/output_file/context_dist/anken_dist/3_stab_context.csv']
 
     align_wounds(path)
 

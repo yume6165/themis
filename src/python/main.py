@@ -16,6 +16,7 @@ import seaborn as sns
 import csv
 import collections as cl
 import copy
+import color_analysis as ca
 
 
 
@@ -64,6 +65,7 @@ def equal_list(lst1, lst2):
 
 
 def find_gravity_r(img):#HSVカラーモデルから重心を探す
+	hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 	h = hsv[:, :, 0]#色相(赤の範囲は256段階の200～20と定義するfromhttps://qiita.com/odaman68000/items/ae28cf7bdaf4fa13a65b)
 	s = hsv[:, :, 1]
 	mask = np.zeros(h.shape, dtype=np.uint8)
@@ -218,10 +220,13 @@ def detect_figure(img):#重心を使って最短辺から最長辺を求める
 					continue
 				elif(y < 0 or y >= tmp_img.shape[0] + 2):
 					continue
-				elif(tmp_img[y][x].tolist() == 255 or tmp_img[y][x + 1].tolist() == 255 or tmp_img[y][x - 1].tolist() == 255):#エッジ（白）ならば,幅は３
-					tmp_point = np.array([x, y])#ベクトルを保存
-					min_point2 = tmp_point
-					break
+				else:
+					if(y >= tmp_img.shape[0]):
+						break
+					if(tmp_img[y][x].tolist() == 255 or tmp_img[y][x + 1].tolist() == 255 or tmp_img[y][x - 1].tolist() == 255):#エッジ（白）ならば,幅は３
+						tmp_point = np.array([x, y])#ベクトルを保存
+						min_point2 = tmp_point
+						break
 
 	#min_point1と２に最短辺の座標が入ってる
 	#最短辺の長さを算出
@@ -388,7 +393,12 @@ def detect_edge(img):#形を求める
 
 			for j in range(int(round(long_axi))):
 				x1 = int(x + j)
-				y1 = int(round(-1 / k * x1 + c))
+				try:
+					y1 = int(round(-1 / k * x1 + c))
+				except ZeroDivisionError as e:
+					continue
+				except OverflowError as e:
+					continue
 				#print(str(x1)+", "+str(y1))
 				#cv.drawMarker(img_edge, (x1, y1), (255, 255, 255), markerType=cv.MARKER_TILTED_CROSS, markerSize=5)
 
@@ -412,7 +422,12 @@ def detect_edge(img):#形を求める
 
 			for j in range(int(round(long_axi))):
 				x1 = int(x - j)
-				y1 = int(round(-1 / k * x1 + c))
+				try:
+					y1 = int(round(-1 / k * x1 + c))
+				except ZeroDivisionError as e:
+					continue
+				except OverflowError as e:
+					continue
 				#cv.drawMarker(img_edge, (x, y), (255, 255, 255), markerType=cv.MARKER_TILTED_CROSS, markerSize=5)
 				if(y1 < 1 or tmp_img.shape[0] - 1 <= y1):
 					continue
@@ -450,6 +465,9 @@ def detect_edge(img):#形を求める
 	elif(1 < abs(k) and max_point1[0] <= max_point2[0]):
 		for i in range(int(round(long_axi))):
 			x = max_point1[0] + i
+			if(((k * x + b) is np.nan) != True):
+				continue
+			tmp = k * x + b
 			y = int(round(k * x + b))
 			c = y + 1 / k / x
 			tmp_point1 = []
@@ -479,6 +497,8 @@ def detect_edge(img):#形を求める
 
 			for j in range(int(round(short_axi * 1.5))):
 				x1 = int(x - j)
+
+				if(k == 0):continue
 				y1 = int(round(-1 / k * x1 + c))
 
 				if(y1 < 1 or tmp_img.shape[0] - 1 <= y1):
@@ -611,6 +631,8 @@ def sharp_judge(img):
 
 	#円の増加速度と比較
 	fw_result = fw_size / fw_cos_y
+	if(len(fw_result) == 0):
+		return 0, 0, 1, 0
 	fw_result = round(max(fw_result), 3)
 
 	#差分を計算(bw:後)
@@ -621,6 +643,8 @@ def sharp_judge(img):
 
 	#円の増加速度と比較
 	bw_result = bw_size / bw_cos_y
+	if(len(bw_result) == 0):
+		return 0, 0, 1, 0
 	bw_result = round(max(bw_result), 3)
 
 
@@ -690,169 +714,11 @@ def find_wound_COLOR(img):#HSVカラーモデルから重心を探す
 
 
 
-#もう使わないやつ
-def rbb(img):
-	red_fet = 0;
-	blue_fet = 0;
-	black_fet = 0;
 
-	cols = 120 #ヒストグラムの行と列の数
+def judge(id, file):
+	img = cv.imread(file, cv.IMREAD_COLOR)
+	img_color = np.array(Image.open(file))
 
-	img_ori = find_wound_COLOR(img)#傷周辺のみを切り抜いた画像
-	img_Lab = cv.cvtColor(img_ori, cv.COLOR_BGR2Lab)
-	#print(img_Lab)
-	img_L, img_a, img_b = cv.split(img_Lab)
-
-	#明度の解析
-	img_L = np.ndarray.flatten(img_L)
-	#print(int(mean(img_L.tolist()) / 256 * 100))
-	brightness = int(mean(img_L.tolist()) / 256 * 100)
-
-	#プロットしてみる
-	img_a = np.ndarray.flatten(img_a)
-	img_b = np.ndarray.flatten(img_b)
-	#print(img_a)
-	hist, aedges, bedges= np.histogram2d(img_a, img_b, bins=cols, range=[[0,255],[0,255]])
-
-	#print(np.array(hist.tolist()).shape)
-
-
-	#一度一次元配列に変換してから二次元での位置を確認する
-	tmp_hist = np.ndarray.flatten(hist)
-
-	#tmp_histで大きな値を130こもってくる
-	max_list1 = []
-	for i in range(1,30):
-		num = sorted(tmp_hist)[-i]
-		if(num == 0):
-			continue
-
-		indexes = [j for j, z in enumerate(tmp_hist) if z == num]
-
-		for place in indexes:
-			x = int(place / cols)
-			y = place % cols
-
-			max_list1.append(np.array([x, y]))
-
-
-	#print(max_list1)
-
-
-	#hist_list = hist.tolist()
-	#max_list = max(hist_list)
-	#m = max(max_list)
-
-	#ヒストグラムで一番多きいところの座標を習得 : hist[y][x]
-	#x = hist_list.index(max(hist_list))
-	#y = max_list.index(m)
-
-	saturations = []
-	degs=[]
-	for val in max_list1:
-		x = val[0]
-		y = val[1]
-
-		#原点が（cols/2,cols / 2）担っているのでこれを（0,0）にシフトし、赤を0度として角度で色情報を付与
-		x -= int(cols / 2)
-		y -= int(cols / 2)
-		r = math.sqrt(x**2 + y**2)
-		cos = x / r
-		sin = y / r
-		r = int(r)
-		#print(r)
-		#print(math.degrees(math.acos(cos)))
-		#print(math.degrees(math.asin(sin)))
-		deg = math.degrees(math.acos(cos))
-
-
-		if(math.degrees(math.asin(sin)) < 0):#yがマイナスなら下半分
-			deg = -1 * math.fabs(deg)
-			degs.append(deg)
-
-		#明度をもとにBlackかどうか決める（本当は照明条件を考えないといけないので、とりあえず今回は真ん中で区切る）
-		if(brightness >= 50):
-			black_fet = 1;
-
-
-
-	#色の判定(青か赤が存在するかだけ判定)
-	color_list = []
-	for deg in degs:
-		if(-29 < deg and deg <= 83):#赤紫から赤黄色まで
-			red_fet = 1
-
-		elif(-65 >= deg and deg > -155):
-			blue_fet = 1
-
-		elif(-29 >= deg and deg > -65):
-			red_fet = 1
-			blue_fet = 1
-
-	#print(list(set(color_list)))
-
-	#img = cv.imread(hist)
-	#cv.imshow()
-
-	#histに64*64のマスに値が入ってます
-	plt.figure()
-	sns.heatmap(hist, cmap="binary_r")
-	plt.title("Histgram 2D")
-	plt.xlabel("a*")
-	plt.ylabel("b*")
-	plt.savefig('D:\Sotsuken\webapp\\public\\tmp\\heat_map')
-
-
-
-	#x,y座標を３Dの形式に変換
-	#apos, bpos = np.meshgrid(aedges[:-1], bedges[:-1])
-	#zpos = 0#zは０を始点にする
-
-	#x,y座標の幅を指定
-	#da = apos[0][1] - apos[0][0]
-	#db = bpos[1][0] - bpos[0][0]
-	#dz = hist.ravel()
-
-	#x,yを３Dの形に変換
-	#apos = apos.ravel()
-	#bpos = bpos.ravel()
-
-	#３D描画
-	#fig = plt.figure()#描画領域の作成
-	#aa = fig.add_subplot(111, projection="3d")
-	#aa.bar3d(apos, bpos, zpos, da, db, dz, cmap=cm.hsv)#ヒストグラムを３D空間に表示
-	#plt.title("Histgram 2D")
-	#plt.xlabel("a*")
-	#plt.ylabel("b*")
-	#aa.set_zlabel("Z")
-	#plt.show()
-
-	src1 = cv.imread('D:\Sotsuken\webapp\\public\\tmp\\heat_map.png')
-	src2 = cv.imread('D:\Sotsuken\webapp\\public\\tmp\\Lab2.jpg')
-	#cv.imshow('src', src1)
-	cv.rectangle(src1, (70, 50), (490, 440), (255, 0, 255), thickness=8, lineType=cv.LINE_4)
-
-	rect = (80,58, 397, 368)
-	src1 = src1[ rect[1] : rect[1] + rect[3], rect[0] : rect[0] + rect[2]]
-	#色の表示系がずれているので回転
-	src1 = cv.rotate(src1, cv.ROTATE_90_COUNTERCLOCKWISE)
-
-	src1 = cv.resize(src1, src2.shape[1::-1])
-	dst = cv.addWeighted(src1, 0.5, src2, 0.5, 0)
-
-	#cv.imshow('result.jpg', dst)
-	#cv.waitKey()
-
-
-	return red_fet, blue_fet, black_fet, dst
-
-
-
-
-
-
-
-def judge(id, img):
 	end_sharp = 0
 	end_thick = 0
 	edge_irregular = 0
@@ -861,9 +727,13 @@ def judge(id, img):
 	openness = 0
 	non_openness = 0
 
-	red_fet = 0
-	blue_fet = 0
-	black_fet = 0
+	l_fet = 0
+	a_fet = 0
+	b_fet = 0
+	pca1_x = 0
+	pca1_y = 0
+	pca1_z = 0
+	dist = 0
 
 	detect_figure(img)
 	detect_edge(img)
@@ -881,7 +751,13 @@ def judge(id, img):
 	oval = oval_judge(img)
 
 	#色の判定
-
+	lab, xyz, dist = ca.Kmeans(img_color)
+	l_fet = lab[0]
+	a_fet = lab[1]
+	b_fet = lab[2]
+	pca1_x = xyz[0]
+	pca1_y = xyz[1]
+	pca1_z = xyz[2]
 
 
 	#画像データをまとめる(画像は書き出してパスをわたすことにした)
@@ -896,8 +772,10 @@ def judge(id, img):
 	if(edge_straight == 1):
 		edge_irregular = 0
 
-	result = [end_sharp,end_thick,edge_irregular,edge_straight,oval,openness,non_openness]
+	result = [end_sharp,end_thick,edge_irregular,edge_straight,oval,openness,non_openness, l_fet, a_fet, b_fet, pca1_x, pca1_y, pca1_z, dist]
 
+	print("Results")
+	print(result)
 
 
 	#辞書作成
@@ -908,26 +786,29 @@ def judge(id, img):
 	return result,data
 
 #データベースの画像データを記録する
-def read_img(folder):#フォルダを指定して
+def read_img(folder, anken_path):#フォルダを指定して
 	global id
 	#print("データベースよみこみ！！！！！！！！"+str(id))
-	files = glob.glob(folder)
+	files = glob.glob(folder + "*.jpg")
 	results = []
 	data_list = []
+	print(files)
 
 	for file in files:
-		#print(file)
-		img = cv.imread(file, cv.IMREAD_COLOR)
 		#sharp, oval, pull, push = judge(img)
+		if(file == anken_path):
+			continue
 		print("Start!!!!!!!!!"+str(id))
-		result, data = judge(id, img)
+		#print(file)
+		result, data = judge(id, file)
 		data_list.append(data)
 		results.append(result)
 		id += 1
 
+
 	#データベースの画像データを追記
 		#print(data_list)
-	with open('/Users/asayamayume/Desktop/themis/public/result/output_file/img_infos.csv', 'a') as f:
+	with open('/Users/asayamayume/Desktop/themis/public/results/output_file/img_infos.csv', 'a') as f:
 		writer = csv.DictWriter(f, ['original_img', 'edge_img', 'color_hist_img', 'color'])
 		#ヘッダの書き込み
 		#writer.writeheader()
@@ -936,7 +817,7 @@ def read_img(folder):#フォルダを指定して
 			#print(data)
 			writer.writerow(data)
 
-	with open('/Users/asayamayume/Desktop/themis/public/result/output_file/img_vec.csv', 'a') as f:
+	with open('/Users/asayamayume/Desktop/themis/public/results/output_file/img_vec.csv', 'a') as f:
 		writer2 = csv.writer(f)
 		for row in results:
 			writer2.writerow(row)
@@ -953,10 +834,9 @@ def anken_read_img(folder):#フォルダを指定して
 	data_list = []
 
 	for file in files:
-		#print(file)
-		img = cv.imread(file, cv.IMREAD_COLOR)
+		print(file)
 		#sharp, oval, pull, push = judge(img)
-		result, data = judge(id, img)
+		result, data = judge(id, file)
 		data_list.append(data)
 		results.append(result)
 		id += 1
@@ -1011,7 +891,7 @@ def no_context_dist(data):#なんの文脈もないときの距離を計算
 	return distances
 
 def make_semantic_matrix(data_mat):#意味行列を作るためのに作成したセマンティックな行列を入力
-
+	print(data_mat)
 	#相関行列の作成
 	relation_mat = np.dot(np.array(data_mat).T, np.array(data_mat))
 	eig_val, eig_vec = np.linalg.eig(relation_mat)#固有値と固有ベクトルを取得
@@ -1147,14 +1027,14 @@ def sem_projection(sem_mat, data, contex_vec_list):#dataはデータベースに
 					if(np.dot(np.array(tmp1), np.array(s)) < 0):#本当は＜がいい
 						count1 += 1
 						continue
-					tmp += (np.dot(np.array(tmp1), np.array(s)))*weigth_c[count]
+					tmp += (np.dot(np.array(d), np.array(s)))*weigth_c[count]
+				else:
+					tmp += (np.dot(np.array(d), np.array(s)))/max
 
 				count1 += 1
 			d_vec.append(tmp)
 		data_vec.append(d_vec)
 
-	#print("data_vec")
-	#print(data_vec)
 
 	#距離計算
 	for d1 in data_vec:
@@ -1166,78 +1046,29 @@ def sem_projection(sem_mat, data, contex_vec_list):#dataはデータベースに
 
 
 
-	#for d1 in data:
-	#	tmp_cxy = []
-	#	for d2 in data:
-	#		count = 0
-	#		sum = 0
-	#		print("内積")
-	#		for s in sem_mat:
-	#			tmp1 = np.dot(np.array(d1), np.array(s))
-	#			tmp2 = np.dot(np.array(d2), np.array(s))
-	#			tmp3 = tmp1 - tmp2#x-y
-				#print(tmp1)
-	#			tmp3 *= weigth_c[count]#c(x-y)
-	#			tmp3 = tmp3 ** 2
-	#			print(tmp3)
-	#			sum += tmp3
-	#			print(sum)
-	#			count += 1
-
-	#		sum = abs(cmath.sqrt(sum))
-	#		tmp_cxy.append(sum)
-
-	#	cxy.append(tmp_cxy)
-	#print("distance")
-	#print(cxy)
-
-
-
-	#for d in data:
-	#	tmp_cxy = []
-	#	tmps = []
-	#	for d2 in data:
-	#		tmp = np.array(d) - d2
-	#		tmps.append(tmp)
-		#print(len(tmps))
-
-	#	for tmp in tmps:
-	#		count = 0
-	#		num = 0
-	#		for t in tmp:
-	#			for w in weigth_c:
-	#				#print(w)
-	#				num += (t * w) ** 2
-	#
-	#		#print(num)
-	#		num1 =  abs(cmath.sqrt(num))
-	#		tmp_cxy.append(num1)
-	#
-	#	cxy.append(tmp_cxy)
 
 	return cxy
 
 
 
 def mmm_operation(path, anken_path):
-	print("Hello")
 	#案件のデータを処理
 	input_vec = np.array(anken_read_img(anken_path)).flatten()
 
 	#データベースのデータを処理
-	results = read_img(path)
+	results = read_img(path,anken_path)
 	#data_listhは画像のパスまで入っている
 	#resultsは単純にベクトルのみ
 	#print(data_list)
 
 	#word_listに色追加しなくちゃいけない、、、。
-	word_list = ["end_sharp","end_thick","edge_irregular","edge_straight","oval","openness","non_openness"]
+	word_list = ["end_sharp","end_thick","edge_irregular","edge_straight","oval","openness","non_openness","l","a","b","x","y","z","d"]
 	#print(results)
 	sem_mat = make_semantic_matrix(results)
 	#sem_data = cl.OrderedDict()
 
 	#意味空間をｃｓｖで出力
-	with open('/Users/asayamayume/Desktop/themis/public/result/output_file/sem_mat.csv', 'w') as f:
+	with open('/Users/asayamayume/Desktop/themis/public/results/output_file/sem_mat.csv', 'w') as f:
 		writer = csv.writer(f)
 		#writer.writerow(word_list)
 		for row in sem_mat:
@@ -1245,17 +1076,18 @@ def mmm_operation(path, anken_path):
 
 	#まずすべての文脈において距離計算
 	#word_list = ["end_sharp","end_thick","edge_irregular","edge_straight","oval","openness","non_openness"]
-	contex_word = [["end_sharp","end_thick","edge_irregular","edge_straight","oval","openness","non_openness"]]
+	contex_word = [["end_sharp","end_thick","edge_irregular","edge_straight","oval","openness","non_openness","l","a","b","x","y","z","d"]]
 
 	#文脈の種類を作成
 	contex_list = []
-	c_list = ["incision", "contusion", "all"]#文脈の順番を格納
+	c_list = ["incision", "contusion", "stab"]#文脈の順番を格納
+	stab_contex = [["end_sharp", "edge_straight","oval", "openness"]]
 	incision_contex = [["end_sharp", "edge_straight", "openness"]]
-	contusion_contex = [["end_thick","edge_irregular","oval","non_openness"]]
-	all_contex = contex_word
+	contusion_contex = [["end_thick","edge_irregular","oval","non_openness","l","a","b","x","y","z","d"]]
+	#all_contex = contex_word
 	contex_list.append(incision_contex)
 	contex_list.append(contusion_contex)
-	contex_list.append(all_contex)
+	contex_list.append(stab_contex)
 
 	contex_vec_list = make_context(sem_mat, word_list, contex_word, results)
 
@@ -1273,14 +1105,14 @@ def mmm_operation(path, anken_path):
 
 		#print(distances)
 
-		with open('/Users/asayamayume/Desktop/themis/public/result/output_file/context_dist/'+str(count + 1)+'_'+c_list[count]+'_context.csv', 'w') as f:
+		with open('/Users/asayamayume/Desktop/themis/public/results/output_file/context_dist/'+str(count + 1)+'_'+c_list[count]+'_context.csv', 'w') as f:
 			writer = csv.writer(f)
 			for d in distances:
 				writer.writerow(d)
 		count += 1
 
 
-	with open('/Users/asayamayume/Desktop/themis/public/result/output_file/context_dist/0_no_context.csv', 'w') as f:
+	with open('/Users/asayamayume/Desktop/themis/public/results/output_file/context_dist/0_no_context.csv', 'w') as f:
 		writer = csv.writer(f)
 		#writer.writerow(no_context_dist(results))
 		for d in no_context_dist(results):
@@ -1307,19 +1139,19 @@ def mmm_operation(path, anken_path):
 
 		#print(distances)
 
-		with open('/Users/asayamayume/Desktop/themis/public/result/output_file/anken_dist/'+str(count + 1)+'_'+c_list[count]+'_context.csv', 'w') as f:
+		with open('/Users/asayamayume/Desktop/themis/public/results/output_file/context_dist/anken_dist/'+str(count + 1)+'_'+c_list[count]+'_context.csv', 'w') as f:
 			writer = csv.writer(f)
 			for d in distances:
 				writer.writerow(d)
 		count += 1
 
-	with open('/Users/asayamayume/Desktop/themis/public/result/output_file/img_vec.csv', 'w') as f:
+	with open('/Users/asayamayume/Desktop/themis/public/results/output_file/img_vec.csv', 'w') as f:
 		writer2 = csv.writer(f)
 		for row in results_anken:
 			writer2.writerow(row)
 
 
-	with open('/Users/asayamayume/Desktop/themis/public/result/output_file/anken_dist/0_no_context.csv', 'w') as f:
+	with open('/Users/asayamayume/Desktop/themis/public/results/output_file/context_dist/anken_dist/0_no_context.csv', 'w') as f:
 		writer = csv.writer(f)
 		#writer.writerow(no_context_dist(results))
 		for d in no_context_dist(results_anken):

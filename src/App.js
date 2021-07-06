@@ -5,9 +5,9 @@ import * as d3 from 'd3';
 
 //Tilte.jsをインポートする
 import Title from './components/Title/Title';
-import Correlationgraph from './components/Correlationgraph/Correlationgraph';
-import Correlationgraph2 from './components/Correlationgraph/Correlationgraph2';
-import Correlationgraph3 from './components/Correlationgraph/Correlationgraph3';
+//import Correlationgraph from './components/Correlationgraph/Correlationgraph';
+//import Correlationgraph2 from './components/Correlationgraph/Correlationgraph2';
+//import Correlationgraph3 from './components/Correlationgraph/Correlationgraph3';
 import Mdsanalyst from './components/Correlationgraph/Mdsanalyst';
 import LeftMenu from './components/LeftMenu/LeftMenu';
 import Test from './components/Correlationgraph/test';
@@ -86,19 +86,19 @@ class App extends Component{
             <div class="panel_area">
                 <div id="panel1" class="tab_panel">
                     <div className="Correlationgraph" id="Correlationgraph">
-                    <Correlationgraph context={this.state} />
+                    
                     </div>
                 </div>
 
                 <div id="panel2" class="tab_panel">
                     <div className="Correlationgraph2" id="Correlationgraph2">
-                    <Correlationgraph2 context={this.state} />
+
                     </div>
                 </div>
 
                 <div id="panel3" class="tab_panel">
                     <div className="Correlationgraph3" id="Correlationgraph3">
-                    <Correlationgraph3 context={this.state} />
+
                     </div>
                 </div>
 
